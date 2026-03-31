@@ -383,7 +383,7 @@ static void Game_changeDisc(char* path) {
 ///////////////////////////////////////
 
 static void SRAM_getPath(char* filename) {
-	sprintf(filename, "%s/%s.sav", core.saves_dir, game.name);
+	sprintf(filename, "%s/%s.srm", core.saves_dir, game.name);
 }
 static void SRAM_read(void) {
 	size_t sram_size = core.get_memory_size(RETRO_MEMORY_SAVE_RAM);
