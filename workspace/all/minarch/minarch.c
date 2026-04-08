@@ -50,6 +50,7 @@ static int screen_effect = EFFECT_NONE;
 static int prevent_tearing = 1; // lenient
 static int show_debug = 0;
 static int max_ff_speed = 3; // 4x
+static int save_format = 0; // 0=.sav, 1=.srm
 static int fast_forward = 0;
 static int overclock = 1; // normal
 static int has_custom_controllers = 0;
@@ -383,7 +384,7 @@ static void Game_changeDisc(char* path) {
 ///////////////////////////////////////
 
 static void SRAM_getPath(char* filename) {
-	sprintf(filename, "%s/%s.sav", core.saves_dir, game.name);
+	sprintf(filename, "%s/%s.%s", core.saves_dir, game.name, save_format ? "srm" : "sav");
 }
 static void SRAM_read(void) {
 	size_t sram_size = core.get_memory_size(RETRO_MEMORY_SAVE_RAM);
@@ -648,6 +649,11 @@ static char* max_ff_labels[] = {
 	"8x",
 	NULL,
 };
+static char* save_format_labels[] = {
+	".sav",
+	".srm",
+	NULL,
+};
 
 ///////////////////////////////
 
@@ -660,6 +666,7 @@ enum {
 	FE_OPT_THREAD,
 	FE_OPT_DEBUG,
 	FE_OPT_MAXFF,
+	FE_OPT_SAVE_FORMAT,
 	FE_OPT_COUNT,
 };
 
@@ -918,6 +925,16 @@ static struct Config {
 				.values = max_ff_labels,
 				.labels = max_ff_labels,
 			},
+			[FE_OPT_SAVE_FORMAT] = {
+				.key	= "minarch_save_format",
+				.name	= "Save Format",
+				.desc	= "File extension for battery saves.\n.sav is the MinUI default.\n.srm is used by RetroArch.",
+				.default_value = 0,
+				.value = 0,
+				.count = 2,
+				.values = save_format_labels,
+				.labels = save_format_labels,
+			},
 			[FE_OPT_COUNT] = {NULL}
 		}
 	},
@@ -1015,6 +1032,10 @@ static void Config_syncFrontend(char* key, int value) {
 	else if (exactMatch(key,config.frontend.options[FE_OPT_MAXFF].key)) {
 		max_ff_speed = value;
 		i = FE_OPT_MAXFF;
+	}
+	else if (exactMatch(key,config.frontend.options[FE_OPT_SAVE_FORMAT].key)) {
+		save_format = value;
+		i = FE_OPT_SAVE_FORMAT;
 	}
 	if (i==-1) return;
 	Option* option = &config.frontend.options[i];
